@@ -28,3 +28,123 @@ Once AWS CLI is installed on the system, and knowing the image acquisition date 
 .. code-block:: bash
 
   aws s3 ls s3://sentinel-cogs/sentinel-s2-l2a-cogs/31/T/DG/2022/7/ --no-sign-request
+
+
+This is a query to obtain the path to scenes over Catalonia on July 2022.
+
+The path to band 4 of one of this scenes, is:
+
+.. code-block:: bash
+
+  https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/DG/2021/2/S2A_31TDG_20210201_0_L2A/B04.tif
+
+
+And to obtain the natural color composition, we could use:
+
+.. code-block:: bash
+
+  https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/DG/2021/2/S2A_31TDG_20210201_0_L2A/TCI.tif
+
+
+1.3. OpenLayers
+=================
+
+As indicated, we are going to use OpenLayers library to interactively visualize the images in a web environment.
+
+First of all, we must create a `node <https://nodejs.org/en/>`_ project and install OpenLayers library and `parcel-bundler <https://github.com/parcel-bundler/parcel#readme>`_.
+
+.. code-block:: bash
+
+  $npm install ol
+  $npm install parcel-bundler
+
+Then, create a file **index.html** with the html code of the application, and another file **main.ja** with the javascript code:
+
+Also configure the document *package.js* with *start* and *build* functions:
+
+.. code-block:: javascript
+
+  {
+    "name": "post_ol_satellite",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "parcel index.html",
+      "build": "parcel build --public-url . index.html"
+    },
+    "author": "josep sitjar",
+    "license": "ISC",
+    "dependencies": {
+      "ol": "^6.14.1",
+      "parcel-bundler": "^1.12.5"
+    }
+  }
+
+This could be the html with the page structure:
+
+.. code-block:: html
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>OpenStreetMap Reprojection</title>
+    <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
+    <script src="https://unpkg.com/elm-pep@1.0.6/dist/elm-pep.js"></script>
+    <!-- The lines below are only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="https://cdn.polyfill.io/v3/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,TextDecoder"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.18.3/minified.js"></script>
+    <style>
+      .map {
+        width: 100%;
+        height:100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <script src="main.js"></script>
+  </body>
+  </html>
+
+It's a very simple page, as for now we just need to show the images, with no other additional functionality.
+
+And finally, on the *main.js* document, we'll add the necessary javascript code to create the map using OpenLayers and display the image in natural color for one of the Sentinel-2 scenes previously identified.
+
+.. code-block:: javascript
+
+  import 'ol/ol.css';
+  import Map from 'ol/Map';
+  import OSM from 'ol/source/OSM';
+  import TileLayer from 'ol/layer/WebGLTile';
+  import View from 'ol/View';
+  import GeoTIFF from 'ol/source/GeoTIFF';
+
+  // Almacenamos la fuente de datos en formato GeoTIFF
+  // Een este caso, una imagen Sentinel-2 en color natural
+  const source = new GeoTIFF({
+    sources: [
+      {
+        url: 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/DG/2021/2/S2A_31TDG_20210201_0_L2A/TCI.tif',
+      },
+    ],
+  });
+
+  // Creamos la capa TileLayer a partir de la fuente de datos creada anteriormente
+  const layer = new TileLayer({
+    source: source,
+  });
+
+  const map = new Map({
+    layers: [
+      // Añadimos la capa (layer) al mapa
+      layer
+    ],
+    target: 'map',
+    view: source.getView(),
+  });
+
+
+Visualize the result
