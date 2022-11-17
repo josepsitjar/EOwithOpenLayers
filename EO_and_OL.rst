@@ -236,4 +236,10 @@ And also add the **style** property to WebGLTile layer:
     },
   });
 
-Visualize the result. 
+Visualize the result.
+
+
+1.6. Conclusion
+============================
+
+It's possible to visualize satellite images through a map developed with OpenLayers library. And also, add different layres to a GeoTIFF data source using the *style* properties offered by the WebGLTile class.
