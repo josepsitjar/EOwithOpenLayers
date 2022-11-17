@@ -25,5 +25,6 @@ AWS CLI is multi platform, so it can be installed on windows, Linux and macOS. T
 Once AWS CLI is installed on the system, and knowing the image acquisition date and it's pixel ID, we can run the following instruction using the command line:
 
 
-.. code-block:: console
-  aws s3 ls s3://sentinel-cogs/sentinel-s2-l2a-cogs/31/T/DG/2022/7/ --no-sign-request  
+.. code-block:: bash
+
+  aws s3 ls s3://sentinel-cogs/sentinel-s2-l2a-cogs/31/T/DG/2022/7/ --no-sign-request
