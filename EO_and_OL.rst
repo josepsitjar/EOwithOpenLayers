@@ -148,3 +148,92 @@ And finally, on the *main.js* document, we'll add the necessary javascript code 
 
 
 Visualize the result
+
+
+1.4. Fals Color composition
+============================
+
+From the previous code, it's not complicated to visualize the same scene in false color, using for example the bands relative to **NIR** (band number 8), **Red** (band number 4) and **Green** (band number 3).
+
+Just add this bands to GeoTIFF object:
+
+.. code-block:: javascript
+
+  const source = new GeoTIFF({
+    sources: [
+      {
+        // banda correspondiente al NIR
+        url: 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/DG/2021/2/S2A_31TDG_20210201_0_L2A/B08.tif',
+        max: 5000,
+      },
+      {
+        // banda correspondiente al Rojo
+        url: 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/DG/2021/2/S2A_31TDG_20210201_0_L2A/B04.tif',
+        max: 5000,
+      },
+      {
+        // banda correspondiente al Verde
+        url: 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/DG/2021/2/S2A_31TDG_20210201_0_L2A/B03.tif',
+        max: 5000,
+      },
+    ],
+  });
+
+Visualize the result
+
+
+1.5. Vegetation indices
+============================
+
+**WebGLTile** layers accept the **style** property, which can be used to control the rendering of the data source, and also apply mathematical expressions.
+This will be useful to create and represent on the fly the NDVI values.
+
+It's necessary to modify the layers of the data source, adding the necessary ones for the NDVI index (RED and NIR).
+
+.. code-block:: javascript
+
+  const source = new GeoTIFF({
+    sources: [
+      {
+        url: 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/DG/2021/2/S2A_31TDG_20210201_0_L2A/B04.tif',
+        max: 10000,
+      },
+      {
+        url: 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/DG/2021/2/S2A_31TDG_20210201_0_L2A/B08.tif',
+        max: 10000,
+      },
+    ],
+  });
+
+
+And also add the **style** property to WebGLTile layer:
+
+.. code-block:: javascript
+
+  const layer = new TileLayer({
+    // indicamos la fuente de datos
+    source: source,
+    // añadimos la propiedad 'style'
+    style: {
+      color: [
+        // aplicamos una interpolación
+        'interpolate',
+        ['linear'],
+        // expresión para calcular el NDVI a partir de las bandas de la fuente de datos
+        ['/', ['-', ['band', 2], ['band', 1]], ['+', ['band', 2], ['band', 1]]],
+        // asignación de colores a cada valor de la capa NDVI
+        -0.2, // a los valores ndvi <= -0.2 se les asignará el color RGB 191,191,191
+        [191, 191, 191],
+        0, // a los valores ndvi entre -0.2 y 0, se les asignará un color resultado de la interpolación entre el color anterior y posterior
+        [255, 255, 224],
+        0.2,
+        [145, 191, 82],
+        0.4,
+        [79, 138, 46],
+        0.6,
+        [15, 84, 10],
+      ],
+    },
+  });
+
+Visualize the result. 
